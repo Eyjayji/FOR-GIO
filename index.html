@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Gio 🧸</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --pink-bg: #ffe0ea;
+            --pink-deep: #ff4d8d;
+            --pink-dark: #c9186b;
+            --lilac: #b28dff;
+            --mint: #00e5a0;
+            --gold: #ffd23f;
+            --ink: #2b1a2e;
+            --card-bg: #fff7fa;
+        }
+
+        body {
+            font-family: 'VT323', monospace;
+            font-size: 1.3rem;
+            background-color: var(--pink-bg);
+            background-image:
+                radial-gradient(circle, rgba(255,255,255,0.6) 1.5px, transparent 1.5px);
+            background-size: 26px 26px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* CRT scanline overlay for game-console feel */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,0.05) 0px,
+                rgba(255,255,255,0.05) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            z-index: 50;
+            mix-blend-mode: multiply;
+        }
+
+        .sky-decor {
+            position: fixed;
+            font-size: 1.4rem;
+            opacity: 0.55;
+            pointer-events: none;
+            z-index: 1;
+            animation: drift linear infinite;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 34px 26px;
+            border-radius: 0;
+            border: 4px solid var(--ink);
+            box-shadow:
+                0 0 0 4px var(--pink-deep),
+                8px 8px 0px var(--ink);
+            image-rendering: pixelated;
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            position: relative;
+            z-index: 10;
+            animation: bounceEntry 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .pixel-corner {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--ink);
+        }
+        .pixel-corner.tl { top: -4px; left: -4px; }
+        .pixel-corner.tr { top: -4px; right: -4px; }
+        .pixel-corner.bl { bottom: -4px; left: -4px; }
+        .pixel-corner.br { bottom: -4px; right: -4px; }
+
+        h1 {
+            font-family: 'Press Start 2P', monospace;
+            color: var(--pink-deep);
+            font-size: 1.15rem;
+            line-height: 1.6;
+            margin-bottom: 14px;
+            text-shadow: 3px 3px 0px var(--ink);
+            letter-spacing: 0.5px;
+        }
+
+        p.terminal {
+            font-family: 'VT323', monospace;
+            color: var(--mint);
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+            margin-bottom: 22px;
+            background: var(--ink);
+            display: inline-block;
+            padding: 6px 14px;
+            border: 2px solid var(--ink);
+            position: relative;
+        }
+
+        p.terminal::after {
+            content: "█";
+            animation: blink 1s steps(1) infinite;
+            margin-left: 4px;
+        }
+
+        .large-emoji {
+            font-size: 74px;
+            display: inline-block;
+            margin-bottom: 12px;
+            animation: floatyEmoji 2.4s infinite steps(6);
+        }
+
+        .hp-bar {
+            width: 100%;
+            height: 18px;
+            border: 3px solid var(--ink);
+            background: #ffd7e2;
+            margin: 0 0 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hp-bar-fill {
+            height: 100%;
+            width: 35%;
+            background: repeating-linear-gradient(90deg, var(--pink-deep), var(--pink-deep) 6px, #ff8fb6 6px, #ff8fb6 12px);
+            animation: hpPulse 1.6s ease-in-out infinite;
+            transition: width 0.6s steps(8);
+        }
+        .hp-label {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.55rem;
+            position: absolute;
+            top: 3px;
+            left: 6px;
+            color: var(--ink);
+            z-index: 2;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            min-height: 90px;
+            position: relative;
+        }
+
+        button {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.75rem;
+            padding: 16px 22px;
+            border: 3px solid var(--ink);
+            border-radius: 0;
+            cursor: pointer;
+            box-shadow: 5px 5px 0px var(--ink);
+            position: relative;
+            display: inline-block;
+            transition: transform 0.08s ease, left 0.22s cubic-bezier(0.34,1.56,0.64,1), top 0.22s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        button:hover {
+            filter: brightness(1.08);
+        }
+
+        button:active {
+            transform: translate(4px, 4px);
+            box-shadow: 1px 1px 0px var(--ink);
+        }
+
+        #yes-btn {
+            background-color: var(--pink-deep);
+            color: #ffffff;
+        }
+
+        #yes-btn::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            box-shadow: 0 0 0 0 rgba(255,77,141,0.6);
+            animation: pulseRing 1.8s ease-out infinite;
+            pointer-events: none;
+        }
+
+        #no-btn {
+            background-color: #ffffff;
+            color: var(--ink);
+        }
+
+        #no-btn.dodging {
+            position: fixed;
+        }
+
+        .action-btn {
+            background-color: var(--lilac);
+            color: #ffffff;
+            margin-top: 15px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: screenIn 0.4s ease;
+        }
+
+        #no-message {
+            font-family: 'VT323', monospace;
+            color: var(--pink-dark);
+            font-size: 1.2rem;
+            margin-top: 18px;
+            background: #ffffff;
+            border: 3px solid var(--pink-deep);
+            box-shadow: 4px 4px 0px var(--ink);
+            padding: 10px;
+            display: none;
+        }
+
+        .math-overlay {
+            display: none;
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            background: #ffffff;
+            border: 4px solid var(--ink);
+            padding: 18px;
+            z-index: 100;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .math-equation {
+            font-family: 'VT323', monospace;
+            background: #1e1e1e;
+            color: #00ff88;
+            padding: 14px;
+            font-size: 1.05rem;
+            margin: 14px 0;
+            text-align: left;
+            overflow-x: auto;
+            max-width: 100%;
+            white-space: pre;
+            border: 2px solid var(--ink);
+        }
+
+        .math-input {
+            font-family: 'VT323', monospace;
+            width: 80%;
+            padding: 8px;
+            border: 3px solid var(--ink);
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .math-error {
+            color: var(--pink-dark);
+            font-family: 'VT323', monospace;
+            font-size: 1.05rem;
+            margin-top: 5px;
+            min-height: 20px;
+        }
+
+        .letter-box {
+            font-family: 'VT323', monospace;
+            background: #fffdfd;
+            border: 3px dashed var(--pink-deep);
+            padding: 20px;
+            text-align: left;
+            margin: 18px 0;
+            max-height: 220px;
+            overflow-y: auto;
+            font-size: 1.2rem;
+            color: var(--ink);
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+
+        .blink-cursor {
+            display: inline-block;
+            width: 9px;
+            background: var(--ink);
+            animation: blink 0.8s steps(1) infinite;
+        }
+
+        .spotify-embed {
+            border: 3px solid var(--ink);
+            margin-top: 18px;
+            overflow: hidden;
+            box-shadow: 5px 5px 0px var(--pink-deep);
+        }
+
+        .heart {
+            position: fixed;
+            font-size: 28px;
+            pointer-events: none;
+            z-index: 60;
+            animation: floatUpBurst 2s cubic-bezier(0.075, 0.82, 0.165, 1) forwards;
+        }
+
+        .pixel-heart {
+            image-rendering: pixelated;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            z-index: 60;
+            pointer-events: none;
+            animation: confettiFall 2.6s ease-in forwards;
+        }
+
+        @keyframes bounceEntry {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes screenIn {
+            0% { opacity: 0; transform: translateY(6px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes floatyEmoji {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(4deg); }
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        @keyframes hpPulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.25); }
+        }
+
+        @keyframes pulseRing {
+            0% { box-shadow: 0 0 0 0 rgba(255,77,141,0.55); }
+            100% { box-shadow: 0 0 0 14px rgba(255,77,141,0); }
+        }
+
+        @keyframes floatUpBurst {
+            0% { transform: translateY(105vh) scale(0.2) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-15vh) scale(1.3) rotate(180deg); opacity: 0; }
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(360deg); opacity: 0.9; }
+        }
+
+        @keyframes drift {
+            from { transform: translateX(-10px) translateY(0); }
+            to { transform: translateX(10px) translateY(-14px); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .large-emoji, .card, #yes-btn::after { animation: none; }
+            .heart, .confetti { animation-duration: 0.01ms; }
+        }
+
+        @media (max-width: 420px) {
+            h1 { font-size: 0.95rem; }
+            button { font-size: 0.65rem; padding: 14px 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div class="pixel-corner tl"></div>
+        <div class="pixel-corner tr"></div>
+        <div class="pixel-corner bl"></div>
+        <div class="pixel-corner br"></div>
+
+        <!-- MATH TRAP OVERLAY -->
+        <div id="mathBox" class="math-overlay">
+            <h1 style="font-size:0.85rem; color:var(--ink); text-shadow:none;">⚠️ VERIFY.EXE</h1>
+            <p style="margin:8px 0; font-family:'VT323',monospace; font-size:1.1rem; background:none; color:var(--ink); padding:0; display:block;">Solve to unlock "No":</p>
+            <div class="math-equation">
+∫[e^(-x²) · cos(2πx)] dx +
+∑_k=1^∞ [𝝮(k) / (k² + √𝝿)] = ∮_c 𝛁𝚽·d𝒓
+            </div>
+            <input type="text" id="mathAns" class="math-input" placeholder="Solve for x...">
+            <button id="mathSubmitBtn" style="padding:10px 18px; font-size:0.65rem; background:var(--ink); color:#fff;">SUBMIT</button>
+            <div id="mathErr" class="math-error"></div>
+            <button id="mathCancelBtn" style="margin-top:14px; border:none; background:none; box-shadow:none; text-decoration:underline; font-size:0.6rem; cursor:pointer;">Give up &amp; press Yes</button>
+        </div>
+
+        <!-- SCREEN 1: THE REQUEST -->
+        <div id="screen1" class="screen active">
+            <div class="hp-bar">
+                <span class="hp-label">GIO'S PATIENCE</span>
+                <div class="hp-bar-fill" id="hpFill"></div>
+            </div>
+            <div class="large-emoji">😭🧸</div>
+            <h1>FORGIVE ME?</h1>
+            <p class="terminal">HI, BOSS</p>
+
+            <div class="btn-container">
+                <button id="yes-btn">YES! ✨</button>
+                <button id="no-btn">NO</button>
+            </div>
+            <div id="no-message"></div>
+        </div>
+
+        <!-- SCREEN 2: UNLOCKED -->
+        <div id="screen2" class="screen">
+            <div class="large-emoji">🥰💖</div>
+            <h1>LEVEL UP!</h1>
+            <p class="terminal">ACCESS GRANTED</p>
+            <button id="open-letter-btn" class="action-btn">📩 OPEN LETTER</button>
+        </div>
+
+        <!-- SCREEN 3: LOVE NOTE -->
+        <div id="screen3" class="screen">
+            <h1>FOR MY GIO</h1>
+            <div class="letter-box" id="letterBox"></div>
+            <div class="btn-container" style="min-height:auto;">
+                <button id="continue-btn" class="action-btn">CONTINUE 👉</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: SONG -->
+        <div id="screen4" class="screen">
+            <h1>PATAWARIN MO AKO PLZ, GIO</h1>
+            <div class="large-emoji">🌸🌹🌷</div>
+            <p class="terminal">PLAYING OUR TAPE</p>
+
+            <div class="spotify-embed">
+                <iframe
+                    style="display:block"
+                    src="https://open.spotify.com/embed/track/1y2gtD8XSBT3tDDlacWKqr?utm_source=generator"
+                    width="100%"
+                    height="152"
+                    frameBorder="0"
+                    allowfullscreen=""
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy">
+                </iframe>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('no-btn');
+        const yesBtn = document.getElementById('yes-btn');
+        const noMessage = document.getElementById('no-message');
+        const mathBox = document.getElementById('mathBox');
+        const mathAns = document.getElementById('mathAns');
+        const mathErr = document.getElementById('mathErr');
+        const mathSubmitBtn = document.getElementById('mathSubmitBtn');
+        const mathCancelBtn = document.getElementById('mathCancelBtn');
+        const hpFill = document.getElementById('hpFill');
+
+        const noMessages = [
+            "> ERROR: OPTION LOCKED",
+            "> TRY AGAIN, BOSS 🥹",
+            "> NICE TRY THOUGH",
+            "> ACCESS DENIED 🚫"
+        ];
+        let dodgeCount = 0;
+
+        // ambient floating background decor
+        const decorEmojis = ['💗','⭐','✨','🩷','💫'];
+        for (let i = 0; i < 14; i++) {
+            const el = document.createElement('div');
+            el.className = 'sky-decor';
+            el.textContent = decorEmojis[Math.floor(Math.random() * decorEmojis.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.top = Math.random() * 100 + 'vh';
+            el.style.animationDuration = (3 + Math.random() * 4) + 's';
+            el.style.animationDirection = Math.random() > 0.5 ? 'alternate' : 'alternate-reverse';
+            document.body.appendChild(el);
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function spawnHearts(count) {
+            const emojis = ['💖', '💕', '💗', '❤️', '💘'];
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.animationDuration = (1.7 + Math.random() * 1.1) + 's';
+                    document.body.appendChild(heart);
+                    setTimeout(() => heart.remove(), 3000);
+                }, i * 80);
+            }
+        }
+
+        function spawnConfetti(count) {
+            const colors = ['#ff4d8d', '#ffd23f', '#b28dff', '#00e5a0', '#ff8fb6'];
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const c = document.createElement('div');
+                    c.className = 'confetti';
+                    c.style.left = Math.random() * 100 + 'vw';
+                    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    c.style.animationDuration = (2 + Math.random() * 1) + 's';
+                    document.body.appendChild(c);
+                    setTimeout(() => c.remove(), 3200);
+                }, i * 40);
+            }
+        }
+
+        function dodgeNoButton() {
+            const btnW = noBtn.offsetWidth;
+            const btnH = noBtn.offsetHeight;
+            const maxX = window.innerWidth - btnW - 20;
+            const maxY = window.innerHeight - btnH - 20;
+            const newX = Math.max(20, Math.random() * maxX);
+            const newY = Math.max(20, Math.random() * maxY);
+            noBtn.classList.add('dodging');
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
+        }
+
+        noBtn.addEventListener('mouseenter', () => {
+            if (dodgeCount < 4) {
+                dodgeCount++;
+                dodgeNoButton();
+                hpFill.style.width = Math.max(5, 35 - dodgeCount * 8) + '%';
+            }
+        });
+
+        noBtn.addEventListener('click', () => {
+            noMessage.style.display = 'block';
+            noMessage.textContent = noMessages[Math.min(dodgeCount, noMessages.length - 1)];
+            mathAns.value = '';
+            mathErr.textContent = '';
+            mathBox.style.display = 'flex';
+        });
+
+        mathSubmitBtn.addEventListener('click', () => {
+            if (mathAns.value.trim().length === 0) {
+                mathErr.textContent = 'Enter an answer first.';
+            } else {
+                mathErr.textContent = "Nope. Press Yes instead 👀";
+            }
+        });
+
+        mathCancelBtn.addEventListener('click', () => {
+            mathBox.style.display = 'none';
+            unlockYes();
+        });
+
+        function unlockYes() {
+            hpFill.style.width = '100%';
+            spawnHearts(20);
+            spawnConfetti(16);
+            showScreen('screen2');
+        }
+
+        yesBtn.addEventListener('click', unlockYes);
+
+        document.getElementById('open-letter-btn').addEventListener('click', () => {
+            showScreen('screen3');
+            typewriterLetter();
+        });
+
+        document.getElementById('continue-btn').addEventListener('click', () => {
+            showScreen('screen4');
+            spawnHearts(12);
+            spawnConfetti(10);
+        });
+
+        // typewriter effect for the letter
+        function typewriterLetter() {
+            const text = `Dear Gio,
+
+I am so incredibly sorry for what happened. You mean the absolute world to me, and hurting you is the last thing I ever want to do.
+
+Please accept this little digital peace offering. 
+
+Like always,
+AJ`;
+            const box = document.getElementById('letterBox');
+            box.textContent = '';
+            let i = 0;
+            const cursor = document.createElement('span');
+            cursor.className = 'blink-cursor';
+            cursor.textContent = ' ';
+
+            function type() {
+                if (i < text.length) {
+                    box.textContent = text.slice(0, i + 1);
+                    box.appendChild(cursor);
+                    i++;
+                    setTimeout(type, 14);
+                } else {
+                    cursor.remove();
+                }
+            }
+            type();
+        }
+    </script>
+
+</body>
+</html>
